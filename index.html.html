@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>115學年度桃園市國小中外師培訓共識營 - 簽到與祝福系統</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome 圖示 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+    body { font-family: 'Noto Sans TC', sans-serif; }
+
+    /* 文字彈幕跑馬燈樣式 */
+    .danmu-text {
+      position: absolute;
+      white-space: nowrap;
+      animation: float-left linear forwards;
+      pointer-events: auto;
+      transition: transform 0.2s;
+    }
+
+    .danmu-text:hover {
+      transform: scale(1.05);
+      z-index: 50;
+    }
+
+    /* 從右至左飄移動畫 */
+    @keyframes float-left {
+      0% { right: -100%; opacity: 0; }
+      3% { opacity: 1; }
+      97% { opacity: 1; }
+      100% { right: 100%; opacity: 0; }
+    }
+  </style>
+</head>
+<body class="bg-sky-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- 頂部控制列 (淺藍底 + 黃色按鈕) -->
+  <header class="bg-blue-600 text-white shadow-md sticky top-0 z-50 border-b border-blue-500">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-graduation-cap text-amber-300 text-2xl"></i>
+        <h1 id="nav-title" class="text-base sm:text-lg font-bold tracking-wide text-white">115學年度桃園市國小中外師培訓共識營</h1>
+      </div>
+      
+      <div class="flex items-center gap-3">
+        <!-- 頁面切換按鈕 (亮黃色) -->
+        <button id="togglePageBtn" class="bg-amber-400 hover:bg-amber-500 text-blue-950 px-4 py-1.5 rounded-lg text-sm font-bold transition flex items-center gap-2 shadow-sm">
+          <i class="fa-solid fa-tv"></i>
+          <span id="btn-toggle-page">切換至祝福牆</span>
+        </button>
+
+        <!-- 雙語切換按鈕 (亮黃色) -->
+        <button id="toggleLangBtn" class="bg-amber-400 hover:bg-amber-500 text-blue-950 font-bold px-3.5 py-1.5 rounded-lg text-sm transition flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-globe"></i>
+          <span id="btn-lang-label">English</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 頁面 1：簽到與留言填寫頁面 (明亮藍白配色) -->
+  <main id="page-signin" class="flex-1 max-w-xl w-full mx-auto p-4 sm:p-6 flex flex-col justify-center">
+    <div class="bg-white rounded-2xl shadow-xl border border-sky-200 overflow-hidden">
+      <div class="bg-blue-600 p-6 text-center border-b border-blue-500">
+        <span class="bg-amber-300 text-blue-950 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">Welcome</span>
+        <h2 id="signin-header" class="text-2xl font-bold mt-2 text-white">賓客簽到與祝福</h2>
+        <p id="signin-sub" class="text-sky-100 text-sm mt-1">請填寫您的基本資料並留下祝福語</p>
+      </div>
+
+      <form id="checkinForm" class="p-6 space-y-4">
+        <div>
+          <label id="label-name" class="block text-sm font-medium text-slate-700 mb-1">您的姓名 / Name *</label>
+          <input type="text" id="userName" required placeholder="例如：王大明 / David Smith" 
+                 class="w-full px-4 py-2 border border-sky-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-sm">
+        </div>
+
+        <div>
+          <label id="label-school" class="block text-sm font-medium text-slate-700 mb-1">服務學校 / School *</label>
+          <input type="text" id="userSchool" required placeholder="例如：龍潭國小 / Longtan Elementary School" 
+                 class="w-full px-4 py-2 border border-sky-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-sm">
+        </div>
+
+        <div>
+          <label id="label-role" class="block text-sm font-medium text-slate-700 mb-1">身分與職稱 / Role *</label>
+          <select id="userRole" class="w-full px-4 py-2 border border-sky-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-sm bg-white">
+            <option value="校長 (Principal)">校長 / Principal</option>
+            <option value="主任 (Director)">主任 / Director</option>
+            <option value="組長 (Section Chief)">組長 / Section Chief</option>
+            <option value="老師 (Teacher)">老師 / Teacher</option>
+            <option value="Foreign Teacher">Foreign Teacher</option>
+          </select>
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label id="label-message" class="block text-sm font-medium text-slate-700">祝福與勉勵語 / Wishes *</label>
+            <!-- AI 自動生成按鈕 -->
+            <button type="button" id="aiGenerateBtn" class="text-xs bg-sky-100 hover:bg-sky-200 text-blue-700 font-semibold px-2.5 py-1 rounded-lg transition flex items-center gap-1 border border-sky-300">
+              <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+              <span id="btn-ai-label">✨ AI 生成祝福</span>
+            </button>
+          </div>
+          
+          <textarea id="blessingText" rows="3" maxlength="50" required placeholder="寫下對團隊或新學期的祝福（限 50 字內）..." 
+                    class="w-full px-4 py-2 border border-sky-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition resize-none text-sm"></textarea>
+          
+          <div class="text-right text-xs text-slate-400 mt-0.5">
+            <span id="charCount">0</span> / 50
+          </div>
+        </div>
+
+        <!-- 簽到完成按鈕 (黃色) -->
+        <button type="submit" class="w-full bg-amber-400 hover:bg-amber-500 text-blue-950 font-bold py-3 rounded-xl transition shadow-md flex justify-center items-center gap-2 text-base">
+          <i class="fa-solid fa-paper-plane"></i>
+          <span id="btn-submit">完成簽到並送出祝福</span>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <!-- 頁面 2：文字跑馬燈展示牆 (柔和藍色背景) -->
+  <main id="page-wall" class="flex-1 relative hidden overflow-hidden bg-gradient-to-b from-sky-400 via-sky-300 to-blue-400">
+    <!-- 文字彈幕容器 -->
+    <div id="danmuContainer" class="absolute inset-0 overflow-hidden"></div>
+
+    <!-- 底部資訊提示 -->
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-6 py-2.5 rounded-full shadow-lg border border-sky-200 text-xs text-blue-900 flex items-center gap-2 z-10">
+      <i class="fa-solid fa-circle-info text-blue-600"></i>
+      <span id="wall-footer-tip">祝福留言將持續以文字跑馬燈形式展示</span>
+    </div>
+  </main>
+
+  <script>
+    // 預設資料庫
+    let messages = [
+      { name: "張校長", school: "龍潭國小", role: "校長 (Principal)", text: "祝福115學年度桃園中外師協同教學順利，共創雙語教育新亮點！" },
+      { name: "John Smith", school: "快樂國小", role: "Foreign Teacher", text: "Wishing everyone a fantastic year of bilingual collaboration!" },
+      { name: "林主任", school: "西門國小", role: "主任 (Director)", text: "歡迎全體中外師共襄盛舉，齊心打造高品質雙語學習環境！" }
+    ];
+
+    // AI 預設生成祝福語句庫
+    const aiWishesZh = [
+      "祝福桃園中外師團隊攜手合作，新學期共創雙語教學佳績！",
+      "齊心協力，共築夢想！預祝115學年度雙語教學成果豐碩！",
+      "願中外師資交流順暢、教學相長，為孩子打造多元學習視野！",
+      "歡迎各位老師參與共識營，期待新學期展現滿滿的教學能量！",
+      "祝福大家新學期教學愉快，中外師團隊溝通無礙、合作無間！"
+    ];
+
+    const aiWishesEn = [
+      "Wishing all teachers a successful year of bilingual teaching in Taoyuan!",
+      "Let's work together to inspire our students and build a bright future!",
+      "Excited to collaborate and achieve great milestones together this year!",
+      "Wishing everyone a fruitful training camp and a wonderful school year!",
+      "May our co-teaching journey be filled with joy, growth, and teamwork!"
+    ];
+
+    let currentLang = 'zh'; 
+    let isWallPage = false;
+    let danmuTimer = null;
+
+    // 雙語翻譯設定
+    const i18n = {
+      zh: {
+        title: "115學年度桃園市國小中外師培訓共識營",
+        toWall: "切換至祝福牆",
+        toSignin: "切換至簽到頁",
+        signinHeader: "賓客簽到與祝福",
+        signinSub: "請填寫您的基本資料並留下祝福語",
+        nameLabel: "您的姓名 / Name *",
+        schoolLabel: "服務學校 / School *",
+        roleLabel: "身分與職稱 / Role *",
+        messageLabel: "祝福與勉勵語 / Wishes *",
+        aiBtn: "✨ AI 生成祝福",
+        submitBtn: "完成簽到並送出祝福",
+        wallTip: "祝福留言將持續以文字跑馬燈形式展示",
+        successMsg: "簽到成功！您的祝福已成功送出。"
+      },
+      en: {
+        title: "2026 Taoyuan City Elementary Schools Bilingual Teachers Training Camp",
+        toWall: "Switch to Wall",
+        toSignin: "Switch to Sign-in",
+        signinHeader: "Guest Check-in & Blessings",
+        signinSub: "Please fill in your details and leave a blessing",
+        nameLabel: "Name *",
+        schoolLabel: "School *",
+        roleLabel: "Role *",
+        messageLabel: "Wishes & Encouragement *",
+        aiBtn: "✨ AI Generator",
+        submitBtn: "Complete Check-in & Submit",
+        wallTip: "Messages will float across the screen as text stream",
+        successMsg: "Check-in successful! Your blessing has been sent."
+      }
+    };
+
+    // DOM 元素引用
+    const togglePageBtn = document.getElementById('togglePageBtn');
+    const toggleLangBtn = document.getElementById('toggleLangBtn');
+    const pageSignin = document.getElementById('page-signin');
+    const pageWall = document.getElementById('page-wall');
+    const checkinForm = document.getElementById('checkinForm');
+    const danmuContainer = document.getElementById('danmuContainer');
+    const blessingText = document.getElementById('blessingText');
+    const charCount = document.getElementById('charCount');
+    const aiGenerateBtn = document.getElementById('aiGenerateBtn');
+
+    // 字數即時計算
+    blessingText.addEventListener('input', () => {
+      charCount.textContent = blessingText.value.length;
+    });
+
+    // AI 生成祝福語點擊事件
+    aiGenerateBtn.addEventListener('click', () => {
+      const list = currentLang === 'zh' ? aiWishesZh : aiWishesEn;
+      const randomWish = list[Math.floor(Math.random() * list.length)];
+      blessingText.value = randomWish.substring(0, 50);
+      charCount.textContent = blessingText.value.length;
+    });
+
+    // 語言切換
+    function updateLanguage() {
+      const lang = i18n[currentLang];
+      document.getElementById('nav-title').textContent = lang.title;
+      document.getElementById('btn-toggle-page').textContent = isWallPage ? lang.toSignin : lang.toWall;
+      document.getElementById('btn-lang-label').textContent = currentLang === 'zh' ? 'English' : '繁體中文';
+      
+      document.getElementById('signin-header').textContent = lang.signinHeader;
+      document.getElementById('signin-sub').textContent = lang.signinSub;
+      document.getElementById('label-name').textContent = lang.nameLabel;
+      document.getElementById('label-school').textContent = lang.schoolLabel;
+      document.getElementById('label-role').textContent = lang.roleLabel;
+      document.getElementById('label-message').textContent = lang.messageLabel;
+      document.getElementById('btn-ai-label').textContent = lang.aiBtn;
+      document.getElementById('btn-submit').textContent = lang.submitBtn;
+      document.getElementById('wall-footer-tip').textContent = lang.wallTip;
+    }
+
+    // 頁面切換
+    function togglePage() {
+      isWallPage = !isWallPage;
+      if (isWallPage) {
+        pageSignin.classList.add('hidden');
+        pageWall.classList.remove('hidden');
+        startDanmuLoop();
+      } else {
+        pageWall.classList.add('hidden');
+        pageSignin.classList.remove('hidden');
+        stopDanmuLoop();
+      }
+      updateLanguage();
+    }
+
+    // HTML 轉義
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+      });
+    }
+
+    // 生成純文字跑馬燈
+    function spawnDanmu(data) {
+      if (!isWallPage) return;
+
+      const danmu = document.createElement('div');
+      danmu.className = 'danmu-text bg-white/95 text-slate-800 px-5 py-2.5 rounded-full border border-sky-200 shadow-md flex items-center gap-2.5';
+      
+      // 隨機垂直位置 (top) 8% ~ 82%
+      const topPos = (Math.random() * 74 + 8).toFixed(1);
+      // 隨機飄移時間 16s ~ 26s
+      const duration = (Math.random() * 10 + 16).toFixed(1);
+
+      danmu.style.top = `${topPos}%`;
+      danmu.style.animationDuration = `${duration}s`;
+
+      // 依據角色設定徽章配色
+      let badgeColor = "bg-blue-600 text-white";
+      if (data.role.includes("Foreign")) badgeColor = "bg-amber-400 text-blue-950 font-bold";
+      if (data.role.includes("校長") || data.role.includes("主任")) badgeColor = "bg-emerald-600 text-white";
+
+      danmu.innerHTML = `
+        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${badgeColor}">
+          ${escapeHtml(data.role)}
+        </span>
+        <span class="font-bold text-blue-900 text-sm sm:text-base">${escapeHtml(data.name)}</span>
+        <span class="text-xs bg-sky-100 text-blue-700 px-2 py-0.5 rounded border border-sky-200">${escapeHtml(data.school)}</span>
+        <span class="text-slate-300">|</span>
+        <span class="text-slate-700 text-sm sm:text-base">${escapeHtml(data.text)}</span>
+      `;
+
+      danmuContainer.appendChild(danmu);
+
+      setTimeout(() => {
+        danmu.remove();
+      }, parseFloat(duration) * 1000);
+    }
+
+    // 輪播觸發器
+    function startDanmuLoop() {
+      danmuContainer.innerHTML = '';
+      if (messages.length > 0) {
+        spawnDanmu(messages[0]);
+      }
+      
+      danmuTimer = setInterval(() => {
+        if (messages.length > 0) {
+          const randomIndex = Math.floor(Math.random() * messages.length);
+          spawnDanmu(messages[randomIndex]);
+        }
+      }, 3000);
+    }
+
+    function stopDanmuLoop() {
+      if (danmuTimer) clearInterval(danmuTimer);
+    }
+
+    // 表單送出
+    checkinForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('userName').value.trim();
+      const school = document.getElementById('userSchool').value.trim();
+      const role = document.getElementById('userRole').value;
+      const text = blessingText.value.trim();
+
+      if (!name || !school || !text) return;
+
+      const newMsg = { name, school, role, text };
+      messages.unshift(newMsg);
+
+      alert(i18n[currentLang].successMsg);
+      checkinForm.reset();
+      charCount.textContent = '0';
+
+      // 自動切換到展示牆並發送該條彈幕
+      togglePage();
+      spawnDanmu(newMsg);
+    });
+
+    // 事件監聽
+    togglePageBtn.addEventListener('click', togglePage);
+    toggleLangBtn.addEventListener('click', () => {
+      currentLang = currentLang === 'zh' ? 'en' : 'zh';
+      updateLanguage();
+    });
+
+    // 初始化
+    updateLanguage();
+  </script>
+</body>
+</html>
