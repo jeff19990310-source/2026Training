@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>115學年度中外師資培訓共識營 - 簽到與祝福系統</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome 圖示 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+    body { font-family: 'Noto Sans TC', sans-serif; }
+
+    /* 雲朵動畫樣式 */
+    .message-cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 50px;
+      padding: 16px 28px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      animation: float-left linear forwards;
+      pointer-events: auto;
+      transition: transform 0.2s;
+    }
+
+    .message-cloud:hover {
+      transform: scale(1.08) !important;
+      z-index: 50;
+    }
+
+    .message-cloud::before, .message-cloud::after {
+      content: '';
+      position: absolute;
+      background: inherit;
+      border-radius: 50%;
+      box-shadow: inherit;
+      z-index: -1;
+    }
+
+    .message-cloud::before {
+      width: 50%;
+      height: 100%;
+      top: -40%;
+      left: 15%;
+    }
+
+    .message-cloud::after {
+      width: 40%;
+      height: 80%;
+      top: -25%;
+      right: 20%;
+    }
+
+    @keyframes float-left {
+      0% { right: -400px; opacity: 0; }
+      5% { opacity: 1; }
+      95% { opacity: 1; }
+      100% { right: 110%; opacity: 0; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col">
+
+  <!-- 頂部控制列 (導覽與切換) -->
+  <header class="bg-indigo-950 text-white shadow-lg sticky top-0 z-50 border-b-2 border-amber-400">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-graduation-cap text-amber-400 text-2xl"></i>
+        <h1 id="nav-title" class="text-base sm:text-lg font-bold">115學年度中外師資培訓共識營</h1>
+      </div>
+      
+      <div class="flex items-center gap-3">
+        <!-- 頁面切換按鈕 -->
+        <button id="togglePageBtn" class="bg-indigo-800 hover:bg-indigo-700 text-amber-300 border border-indigo-600 px-3.5 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 shadow">
+          <i class="fa-solid fa-tv"></i>
+          <span id="btn-toggle-page">切換至祝福牆</span>
+        </button>
+
+        <!-- 雙語切換按鈕 -->
+        <button id="toggleLangBtn" class="bg-amber-500 hover:bg-amber-600 text-indigo-950 font-bold px-3 py-1.5 rounded-lg text-sm transition flex items-center gap-1.5 shadow">
+          <i class="fa-solid fa-globe"></i>
+          <span id="btn-lang-label">English</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 頁面 1：簽到與留言填寫頁面 (Check-in Page) -->
+  <main id="page-signin" class="flex-1 max-w-xl w-full mx-auto p-4 sm:p-6 flex flex-col justify-center">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+      <div class="bg-indigo-900 text-white p-6 text-center border-b border-indigo-800">
+        <span class="bg-amber-400 text-indigo-950 text-xs font-bold px-2.5 py-0.5 rounded uppercase tracking-wider">Welcome</span>
+        <h2 id="signin-header" class="text-2xl font-bold mt-2">賓客簽到與祝福</h2>
+        <p id="signin-sub" class="text-indigo-200 text-sm mt-1">請填寫您的基本資料並留下祝福語</p>
+      </div>
+
+      <form id="checkinForm" class="p-6 space-y-5">
+        <div>
+          <label id="label-name" class="block text-sm font-medium text-slate-700 mb-1">您的姓名 / Name *</label>
+          <input type="text" id="userName" required placeholder="例如：王大明 / David Smith" 
+                 class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition text-sm">
+        </div>
+
+        <div>
+          <label id="label-role" class="block text-sm font-medium text-slate-700 mb-1">身分與職稱 / Role *</label>
+          <select id="userRole" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition bg-white text-sm">
+            <option value="校長 (Principal)">校長 / Principal</option>
+            <option value="主任 (Director)">主任 / Director</option>
+            <option value="組長 (Section Chief)">組長 / Section Chief</option>
+            <option value="老師 (Teacher)">老師 / Teacher</option>
+            <option value="Foreign Teacher">Foreign Teacher</option>
+          </select>
+        </div>
+
+        <div>
+          <label id="label-message" class="block text-sm font-medium text-slate-700 mb-1">祝福與勉勵語 / Wishes & Encouragement *</label>
+          <textarea id="blessingText" rows="4" required placeholder="寫下對團隊或新學期的祝福..." 
+                    class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-none text-sm"></textarea>
+        </div>
+
+        <button type="submit" class="w-full bg-indigo-800 hover:bg-indigo-900 text-white py-3 rounded-xl font-bold transition shadow-md flex justify-center items-center gap-2 text-base">
+          <i class="fa-solid fa-paper-plane"></i>
+          <span id="btn-submit">完成簽到並送出祝福</span>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <!-- 頁面 2：雲朵跑馬燈展示牆 (Wall Page) -->
+  <main id="page-wall" class="flex-1 relative hidden overflow-hidden bg-gradient-to-b from-sky-200 via-sky-100 to-white">
+    <!-- 雲朵會動態在此容器生成與飄移 -->
+    <div id="cloudContainer" class="absolute inset-0 overflow-hidden"></div>
+
+    <!-- 底部資訊提示 -->
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur px-6 py-2 rounded-full shadow border border-slate-200 text-xs text-slate-600 flex items-center gap-2 z-10">
+      <i class="fa-solid fa-circle-info text-indigo-600"></i>
+      <span id="wall-footer-tip">留言會持續以雲朵形式漂過展示牆</span>
+    </div>
+  </main>
+
+  <script>
+    // 預設資料庫 (全域儲存)
+    let messages = [
+      { name: "張校長", role: "校長 (Principal)", text: "祝福115學年度中外團隊攜手共創佳績！共識營順利！" },
+      { name: "John Smith", role: "Foreign Teacher", text: "Wishing everyone a fruitful school year! Excited to work together." },
+      { name: "林主任", role: "主任 (Director)", text: "歡迎全體中外師資加入，大家新學期加油！" }
+    ];
+
+    let currentLang = 'zh'; // 'zh' 或 'en'
+    let isWallPage = false;
+    let cloudTimer = null;
+
+    // 語系文本對照表
+    const i18n = {
+      zh: {
+        title: "115學年度中外師資培訓共識營",
+        toWall: "切換至祝福牆",
+        toSignin: "切換至簽到頁",
+        signinHeader: "賓客簽到與祝福",
+        signinSub: "請填寫您的基本資料並留下祝福語",
+        nameLabel: "您的姓名 / Name *",
+        roleLabel: "身分與職稱 / Role *",
+        messageLabel: "祝福與勉勵語 / Wishes & Encouragement *",
+        submitBtn: "完成簽到並送出祝福",
+        wallTip: "留言會持續以雲朵形式漂過展示牆",
+        successMsg: "簽到成功！您的祝福已成功送出。"
+      },
+      en: {
+        title: "AY2026 Faculty Training & Alignment Workshop",
+        toWall: "Switch to Wall",
+        toSignin: "Switch to Sign-in",
+        signinHeader: "Guest Check-in & Blessings",
+        signinSub: "Please fill in your details and leave a blessing",
+        nameLabel: "Name *",
+        roleLabel: "Role *",
+        messageLabel: "Wishes & Encouragement *",
+        submitBtn: "Complete Check-in & Submit",
+        wallTip: "Messages continuously float across the wall as clouds",
+        successMsg: "Check-in successful! Your blessing has been sent."
+      }
+    };
+
+    // DOM 元素引用
+    const togglePageBtn = document.getElementById('togglePageBtn');
+    const toggleLangBtn = document.getElementById('toggleLangBtn');
+    const pageSignin = document.getElementById('page-signin');
+    const pageWall = document.getElementById('page-wall');
+    const checkinForm = document.getElementById('checkinForm');
+    const cloudContainer = document.getElementById('cloudContainer');
+
+    // 語言切換邏輯
+    function updateLanguage() {
+      const lang = i18n[currentLang];
+      document.getElementById('nav-title').textContent = lang.title;
+      document.getElementById('btn-toggle-page').textContent = isWallPage ? lang.toSignin : lang.toWall;
+      document.getElementById('btn-lang-label').textContent = currentLang === 'zh' ? 'English' : '繁體中文';
+      
+      document.getElementById('signin-header').textContent = lang.signinHeader;
+      document.getElementById('signin-sub').textContent = lang.signinSub;
+      document.getElementById('label-name').textContent = lang.nameLabel;
+      document.getElementById('label-role').textContent = lang.roleLabel;
+      document.getElementById('label-message').textContent = lang.messageLabel;
+      document.getElementById('btn-submit').textContent = lang.submitBtn;
+      document.getElementById('wall-footer-tip').textContent = lang.wallTip;
+    }
+
+    // 頁面切換邏輯
+    function togglePage() {
+      isWallPage = !isWallPage;
+      if (isWallPage) {
+        pageSignin.classList.add('hidden');
+        pageWall.classList.remove('hidden');
+        startCloudLoop();
+      } else {
+        pageWall.classList.add('hidden');
+        pageSignin.classList.remove('hidden');
+        stopCloudLoop();
+      }
+      updateLanguage();
+    }
+
+    // HTML 轉義
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+      });
+    }
+
+    // 隨機生成飄移雲朵
+    function spawnCloud(data) {
+      if (!isWallPage) return;
+
+      const cloud = document.createElement('div');
+      cloud.className = 'message-cloud';
+      
+      const scale = (Math.random() * 0.2 + 0.95).toFixed(2);
+      const topPos = (Math.random() * 70 + 8).toFixed(1);
+      const duration = (Math.random() * 15 + 20).toFixed(1);
+      const width = Math.min(320, window.innerWidth * 0.7);
+
+      cloud.style.top = `${topPos}%`;
+      cloud.style.transform = `scale(${scale})`;
+      cloud.style.animationDuration = `${duration}s`;
+      cloud.style.maxWidth = `${width}px`;
+
+      let badgeColor = "bg-indigo-100 text-indigo-800 border-indigo-200";
+      if (data.role.includes("Foreign")) badgeColor = "bg-amber-100 text-amber-800 border-amber-300";
+      if (data.role.includes("校長") || data.role.includes("主任")) badgeColor = "bg-emerald-100 text-emerald-800 border-emerald-200";
+
+      cloud.innerHTML = `
+        <div class="flex items-center gap-2 mb-1">
+          <strong class="text-sm font-bold text-slate-800">${escapeHtml(data.name)}</strong>
+          <span class="text-xs px-2 py-0.5 rounded-full border ${badgeColor} font-medium">${escapeHtml(data.role)}</span>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">${escapeHtml(data.text)}</p>
+      `;
+
+      cloudContainer.appendChild(cloud);
+
+      setTimeout(() => {
+        cloud.remove();
+      }, parseFloat(duration) * 1000);
+    }
+
+    // 輪播觸發器：定期隨機挑選留言繪製雲朵
+    function startCloudLoop() {
+      cloudContainer.innerHTML = '';
+      if (messages.length > 0) {
+        spawnCloud(messages[0]);
+      }
+      
+      cloudTimer = setInterval(() => {
+        if (messages.length > 0) {
+          const randomIndex = Math.floor(Math.random() * messages.length);
+          spawnCloud(messages[randomIndex]);
+        }
+      }, 4000);
+    }
+
+    function stopCloudLoop() {
+      if (cloudTimer) clearInterval(cloudTimer);
+    }
+
+    // 簽到表單送出處理
+    checkinForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('userName').value.trim();
+      const role = document.getElementById('userRole').value;
+      const text = document.getElementById('blessingText').value.trim();
+
+      if (!name || !text) return;
+
+      const newMsg = { name, role, text };
+      messages.unshift(newMsg);
+
+      alert(i18n[currentLang].successMsg);
+      checkinForm.reset();
+
+      // 送出後自動切換至祝福牆展示
+      togglePage();
+      spawnCloud(newMsg);
+    });
+
+    // 事件監聽
+    togglePageBtn.addEventListener('click', togglePage);
+    toggleLangBtn.addEventListener('click', () => {
+      currentLang = currentLang === 'zh' ? 'en' : 'zh';
+      updateLanguage();
+    });
+
+    // 初始化語言
+    updateLanguage();
+  </script>
+</body>
+</html>
